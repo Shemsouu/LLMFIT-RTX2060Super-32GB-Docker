@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLMFit RTX 2060 Super + 32GB DDR4</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --success: #22c55e;
+            --warning: #fbbf24;
+            --danger: #ef4444;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border: rgba(148, 163, 184, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            text-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .model-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .model-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+        }
+
+        .model-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+        }
+
+        .model-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .model-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--light), var(--gray));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .model-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .tag.heretic {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .tag.uncensored {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+            color: var(--success);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .tag.moe {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.1));
+            color: var(--secondary);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .model-info {
+            margin-bottom: 1rem;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .info-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .info-text {
+            color: var(--gray);
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--light);
+        }
+
+        .performance-bar {
+            height: 8px;
+            background: rgba(148, 163, 184, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .performance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .performance-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+
+        .llama-cmd {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.8rem;
+            color: var(--accent);
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.8;
+        }
+
+        .llama-cmd::before {
+            content: 'llama.cpp command:';
+            color: var(--gray);
+            margin-right: 0.5rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--gray);
+        }
+
+        .comparison-section {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--light), var(--gray));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            background: rgba(99, 102, 241, 0.2);
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .gpu-info {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .gpu-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .gpu-sub {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            .container {
+                padding: 1rem;
+            }
+            .models-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>LLMFit RTX 2060 Super + 32GB DDR4</h1>
+            <p class="subtitle">Best Uncensored/Heretic LLMs Optimized for Your Hardware</p>
+        </header>
+
+        <div class="gpu-info">
+            <div class="gpu-badge">
+                NVIDIA RTX 2060 Super
+            </div>
+            <div class="gpu-badge">
+                32GB DDR4 System RAM
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-value">10</div>
+                <div class="stat-label">Best Models</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">128K+</div>
+                <div class="stat-label">Max Context</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">20-100+</div>
+                <div class="stat-label">Tokens/Second</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">Heretic</div>
+                <div class="stat-label">Uncensored Method</div>
+            </div>
+        </div>
+
+        <div class="comparison-section">
+            <h2 class="section-title">Model Comparison</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Method</th>
+                        <th>Best For</th>
+                        <th>Speed (2060S)</th>
+                        <th>Quality</th>
+                        <th>VRAM</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Qwen3.8 27B Uncensored</strong></td>
+                        <td>Abliteration</td>
+                        <td>Best Overall</td>
+                        <td>40-50 T/s</td>
+                        <td>★★★★★</td>
+                        <td>16-24GB</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gemma 4 26B-A4B Heretic</strong></td>
+                        <td>Heretic</td>
+                        <td>Speed/MoE</td>
+                        <td>60-70 T/s</td>
+                        <td>★★★★☆</td>
+                        <td>12-16GB</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gemma 4 31B Heretic</strong></td>
+                        <td>Heretic</td>
+                        <td>Quality/32GB</td>
+                        <td>40-50 T/s</td>
+                        <td>★★★★★</td>
+                        <td>24-32GB</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dolphin 3.0 Mistral 24B</strong></td>
+                        <td>Fine-tune</td>
+                        <td>General Purpose</td>
+                        <td>50-60 T/s</td>
+                        <td>★★★★☆</td>
+                        <td>12-16GB</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Flint 40B-A2.5B Heretic</strong></td>
+                        <td>Abliteration</td>
+                        <td>Large Model</td>
+                        <td>20-30 T/s</td>
+                        <td>★★★★★</td>
+                        <td>24-32GB</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Huihui Qwen 3.6 35B-A3B</strong></td>
+                        <td>Abliteration</td>
+                        <td>Proven Classic</td>
+                        <td>35-45 T/s</td>
+                        <td>★★★★☆</td>
+                        <td>20-24GB</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sage-A1.5 Heretic</strong></td>
+                        <td>Heretic+Abliteration</td>
+                        <td>Advanced Reasoning</td>
+                        <td>30-40 T/s</td>
+                        <td>★★★★★</td>
+                        <td>24-32GB</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GLM-5.3-Flash Abliterated</strong></td>
+                        <td>Abliteration</td>
+                        <td>Vision/Multimodal</td>
+                        <td>25-35 T/s</td>
+                        <td>★★★★☆</td>
+                        <td>256GB+</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Qwen3.5 9B Ultra Heretic</strong></td>
+                        <td>Heretic</td>
+                        <td>Lightweight</td>
+                        <td>80-100 T/s</td>
+                        <td>★★★★☆</td>
+                        <td>4-8GB</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DeepSeek V4.1 Flash Abliterated</strong></td>
+                        <td>Abliteration</td>
+                        <td>Security Research</td>
+                        <td>35-45 T/s</td>
+                        <td>★★★★★</td>
+                        <td>12-16GB</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="models-grid" id="models-container">
+            <!-- Models will be dynamically loaded -->
+        </div>
+
+        <footer>
+            <p>Optimized for RTX 2060 Super + 32GB DDR4 | Using llama.cpp with optimal parameters</p>
+            <p style="margin-top: 0.5rem; font-size: 0.875rem;">Inspired by ws.shemsou.com design philosophy</p>
+        </footer>
+    </div>
+
+    <script>
+        const models = [
+            {
+                name: "Qwen3.8 27B Uncensored",
+                tags: ["Abliterated", "Best Overall"],
+                info: [
+                    { label: "Method", value: "Abliteration (layers 22-52)" },
+                    { label: "Base Model", value: "Qwen3.8 27B" },
+                    { label: "Refusals", value: "~0/100" },
+                    { label: "Best For", value: "Coding, Agents, Vision" }
+                ],
+                performance: [
+                    { label: "GPU Speed", value: "40-50 T/s", color: "#6366f1" },
+                    { label: "VRAM (Q4)", value: "16-20GB", color: "#06b6d4" }
+                ],
+                command: `python -m llama.cpp serve \\\n  --model ./Qwen3.8-27B-Q4_K_M.gguf \\\n  --port 13378 \\\n  --n-context 81920 \\\n  --n-threads 4 \\\n  --max-tokens 131072 \\\n  --gpu-layers 45 \\\n  --tensor-parallel 1 \\\n  --mmap true`
+            },
+            {
+                name: "Gemma 4 26B-A4B Heretic",
+                tags: ["Heretic", "MoE", "Ultra-Fast"],
+                info: [
+                    { label: "Method", value: "Heretic ARA" },
+                    { label: "Base Model", value: "Gemma 4 26B-A4B" },
+                    { label: "Active Params", value: "~4B per token" },
+                    { label: "Refusals", value: "0/465 reported" }
+                ],
+                performance: [
+                    { label: "GPU Speed", value: "60-70 T/s", color: "#8b5cf6" },
+                    { label: "VRAM (Q4)", value: "12-14GB", color: "#06b6d4" }
+                ],
+                command: `python -m llama.cpp serve \\\n  --model ./gemma-4-26B-A4B-it-heretic-GGUF \\\n  --port 13379 \\\n  --n-context 81920 \\\n  --n-threads 6 \\\n  --max-tokens 131072 \\\n  --gpu-layers 35 \\\n  --tensor-parallel 1 \\\n  --mmap true`
+            },
+            {
+                name: "Gemma 4 31B Heretic",
+                tags: ["Heretic", "Best for 32GB"],
+                info: [
+                    { label: "Method", value: "Heretic ARA" },
+                    { label: "Base Model", value: "Gemma 4 31B" },
+                    { label: "Active Params", value: "~31B dense" },
+                    { label: "Refusals", value: "~3/100" }
+                ],
+                performance: [
+                    { label: "GPU Speed", value: "40-50 T/s", color: "#ec4899" },
+                    { label: "VRAM (Q4)", value: "24-32GB", color: "#06b6d4" }
+                ],
+                command: `python -m llama.cpp serve \\\n  --model ./gemma-4-31B-it-heretic-GGUF \\\n  --port 13380 \\\n  --n-context 81920 \\\n  --n-threads 8 \\\n  --max-tokens 131072 \\\n  --gpu-layers 48 \\\n  --tensor-parallel 1 \\\n  --mmap true`
+            },
+            {
+                name: "Dolphin 3.0 Mistral 24B",
+                tags: ["Fine-tuned", "General Purpose"],
+                info: [
+                    { label: "Method", value: "Refusal-free fine-tune" },
+                    { label: "Base Model", value: "Mistral 24B" },
+                    { label: "Refusals", value: "Removed by design" },
+                    { label: "Best For", value: "Coding, Function Calling" }
+                ],
+                performance: [
+                    { label: "GPU Speed", value: "50-60 T/s", color: "#10b981" },
+                    { label: "VRAM (Q4)", value: "12-16GB", color: "#06b6d4" }
+                ],
+                command: `python -m llama.cpp serve \\\n  --model ./Dolphin3.0-Mistral-24B-GGUF \\\n  --port 13381 \\\n  --n-context 81920 \\\n  --n-threads 6 \\\n  --max-tokens 131072 \\\n  --gpu-layers 38 \\\n  --tensor-parallel 1 \\\n  --mmap true`
+            },
+            {
+                name: "Flint 40B-A2.5B Heretic",
+                tags: ["Abliterated", "Large Model"],
+                info: [
+                    { label: "Method", value: "Abliterix + Optuna" },
+                    { label: "Base Model", value: "Flint 40B" },
+                    { label: "Active Params", value: "~2.5B" },
+                    { label: "Refusals", value: "~0/100" }
+                ],
+                performance: [
+                    { label: "GPU Speed", value: "20-30 T/s", color: "#f59e0b" },
+                    { label: "VRAM (Q4)", value: "24-32GB", color: "#06b6d4" }
+                ],
+                command: `python -m llama.cpp serve \\\n  --model ./Flint-40B-A2.5B-GGUF \\\n  --port 13382 \\\n  --n-context 81920 \\\n  --n-threads 8 \\\n  --max-tokens 131072 \\\n  --gpu-layers 45 \\\n  --tensor-parallel 1 \\\n  --mmap true`
+            }
+        ];
+
+        models.forEach(model => {
+            const card = document.createElement('div');
+            card.className = 'model-card';
+            
+            const tagsHtml = model.tags.map(tag => 
+                `<span class="tag ${tag}">${tag}</span>`
+            ).join('');
+
+            const infoHtml = model.info.map(info => 
+                `<div class="info-row">
+                    <div class="info-icon">${info.label.substring(0, 1)}</div>
+                    <span class="info-text">${info.label}</span>
+                    <span class="info-value">${info.value}</span>
+                </div>`
+            ).join('');
+
+            const perfHtml = model.performance.map(perf => 
+                `<div class="performance-bar">
+                    <div class="performance-fill" style="width: ${perf.value.includes('/') ? perf.value.split('/')[0] : perf.value}%; background: linear-gradient(90deg, ${perf.color}, #06b6d4)"></div>
+                </div>
+                <div class="performance-label">
+                    <span>${perf.label}</span>
+                    <span>${perf.value}</span>
+                </div>`
+            ).join('');
+
+            card.innerHTML = `
+                <div class="model-header">
+                    <div class="model-name">${model.name}</div>
+                    <div class="model-tags">${tagsHtml}</div>
+                </div>
+                <div class="model-info">${infoHtml}</div>
+                <div class="performance-bar"><div class="performance-fill" style="width: 60%; background: linear-gradient(90deg, #6366f1, #06b6d4)"></div></div>
+                <div class="performance-label"><span>GPU Speed</span><span>${model.performance[0].value}</span></div>
+                <div class="performance-bar"><div class="performance-fill" style="width: 75%; background: linear-gradient(90deg, #8b5cf6, #06b6d4)"></div></div>
+                <div class="performance-label"><span>VRAM (Q4)</span><span>${model.performance[1].value}</span></div>
+                <div class="llama-cmd">${model.command}</div>
+            `;
+
+            document.getElementById('models-container').appendChild(card);
+        });
+    </script>
+</body>
+</html>
